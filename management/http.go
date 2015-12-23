@@ -3,6 +3,7 @@ package management
 import (
 	"bytes"
 	"fmt"
+	"os"
 
 	"github.com/Azure/azure-sdk-for-go/core/http"
 	"github.com/Azure/azure-sdk-for-go/core/tls"
@@ -64,6 +65,15 @@ func getOperationID(response *http.Response) (OperationID, error) {
 // sendAzureRequest constructs an HTTP client for the request, sends it to the
 // management API and returns the response or an error.
 func (client client) sendAzureRequest(method, url, contentType string, data []byte) (*http.Response, error) {
+
+	f, err := os.OpenFile("/tmp/azure.log", os.O_RDWR|os.O_APPEND, 0660)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	fmt.Fprintf(f, "=== sendAzureRequest() ===\n%s\n", data)
+
 	if method == "" {
 		return nil, fmt.Errorf(errParamNotSpecified, "method")
 	}
